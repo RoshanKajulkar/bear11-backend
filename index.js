@@ -16,8 +16,16 @@ const pool = new Pool({
   },
 });
 
+const secretTokens = process.env.USER_SECRETS;
+
 app.get("/", async (req, res) => {
   try {
+    const userToken = req.query.s;
+
+    if (!secretTokens.split(",").includes(userToken)) {
+      return res.status(403).send("Access denied: Invalid secret token.");
+    }
+
     const result = await pool.query(
       "SELECT * FROM market_data WHERE date = CURRENT_DATE;"
     );
