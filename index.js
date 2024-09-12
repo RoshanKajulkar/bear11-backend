@@ -117,7 +117,7 @@ const hitApi = async () => {
   }
 };
 
-setInterval(hitApi, 5 * 60 * 1000);
+setInterval(hitApi, 1 * 60 * 1000);
 
 hitApi();
 
