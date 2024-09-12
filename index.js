@@ -3,6 +3,7 @@ const express = require("express");
 const { Pool } = require("pg");
 const app = express();
 const port = process.env.PORT || 3000;
+const axios = require("axios");
 
 // Set up PostgreSQL connection
 const pool = new Pool({
@@ -101,6 +102,26 @@ app.get("/", async (req, res) => {
     console.error("Error", err);
     res.status(500).send("Internal Server Error");
   }
+});
+
+let lastApiHit = "";
+
+const hitApi = async () => {
+  try {
+    await axios.get("https://bear11-2lec.onrender.com/?s=GoCLT8QV-guest");
+
+    lastApiHit = new Date();
+  } catch (error) {
+    console.error("Error making API call:", error);
+  }
+};
+
+setInterval(hitApi, 5 * 60 * 1000);
+
+hitApi();
+
+app.get("/hit/log", async (req, res) => {
+  res.status(200).send("Last API hit made on : " + lastApiHit);
 });
 
 app.listen(port, () => {
