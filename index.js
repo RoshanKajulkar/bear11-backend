@@ -122,7 +122,11 @@ setInterval(hitApi, 1 * 60 * 1000);
 hitApi();
 
 app.get("/hit/log", async (req, res) => {
-  res.status(200).send("Last API hit made on : " + lastApiHit);
+  const istTime = lastApiHit.toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+  });
+
+  res.status(200).send("Last API hit made on : " + istTime);
 });
 
 app.listen(port, () => {
