@@ -28,7 +28,7 @@ app.get("/", async (req, res) => {
     }
 
     const result = await pool.query(
-      "SELECT * FROM market_data WHERE date = '2024-09-13';"
+      "SELECT * FROM market_data WHERE date = CURRENT_DATE;"
     );
 
     const data = result.rows;
