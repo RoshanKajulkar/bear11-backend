@@ -18,6 +18,8 @@ const pool = new Pool({
 
 const secretTokens = process.env.USER_SECRETS;
 
+app.use(express.static("public"));
+
 app.get("/", async (req, res) => {
   try {
     const userToken = req.query.s;
@@ -40,6 +42,7 @@ app.get("/", async (req, res) => {
                   <meta charset="UTF-8">
                   <meta name="viewport" content="width=device-width, initial-scale=1.0">
                   <title>Pragati Share Market</title>
+                  <link rel="icon" href="/logo.png" type="image/png">
                   <style>
                       body {
                           font-family: Arial, sans-serif;
