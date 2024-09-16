@@ -42,7 +42,7 @@ app.get("/", async (req, res) => {
                   <meta charset="UTF-8">
                   <meta name="viewport" content="width=device-width, initial-scale=1.0">
                   <title>Pragati Share Market</title>
-                  <link rel="icon" href="/logo.png" type="image/png">
+                  <link rel="icon" href="https://bear11-2lec.onrender.com/logo.png" type="image/png">
                   <style>
                       body {
                           font-family: Arial, sans-serif;
