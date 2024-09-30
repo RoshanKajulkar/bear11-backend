@@ -181,6 +181,11 @@ const hitApi = async () => {
     await axios.get(
       `https://bear11-2lec.onrender.com/?s=${process.env.ADMIN_SECRET}`
     );
+
+    await axios.get(
+      `https://indistockpulse.onrender.com`
+    );
+
     lastApiHit = new Date();
   } catch (error) {
     console.error("Error making API call");
