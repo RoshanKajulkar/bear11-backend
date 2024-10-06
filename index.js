@@ -43,7 +43,7 @@ app.use(express.static(path.join(__dirname, "frontend/dist")));
 app.post("/register", async (req, res) => {
   const { username, fyers_id, app_id, secret_id, password } = req.body;
 
-  const saltRounds = process.env.SALT;
+  const saltRounds = Number(process.env.SALT);
   const hashedPassword = await bcrypt.hash(password, saltRounds);
 
   let fyersId = null;
