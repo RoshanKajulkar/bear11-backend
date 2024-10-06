@@ -40,6 +40,10 @@ function encrypt(text) {
 
 app.use(express.static(path.join(__dirname, "frontend/dist")));
 
+app.get("/logo", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/logo.png"));
+});
+
 app.post("/register", async (req, res) => {
   const { username, fyers_id, app_id, secret_id, password } = req.body;
 
