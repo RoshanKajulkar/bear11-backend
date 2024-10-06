@@ -140,7 +140,7 @@ const authenticateJWT = (req, res, next) => {
 app.get("/filtered-stocks", authenticateJWT, async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT * FROM market_data WHERE date = '2024-10-04';"
+      "SELECT * FROM market_data WHERE date = CURRENT_DATE;"
     );
 
     const data = result.rows;
