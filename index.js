@@ -27,29 +27,40 @@ const pool = new Pool({
 });
 
 function encrypt(text) {
-  const cipher = crypto.createCipheriv(
-    "aes-256-cbc",
-    Buffer.from(process.env.ENCRYPTION_KEY, "hex"),
-    Buffer.from(process.env.ENCRYPTION_IV, "hex")
-  );
-  let encrypted = cipher.update(text, "utf8", "hex");
-  encrypted += cipher.final("hex");
-  return encrypted;
+  if (text) {
+    const cipher = crypto.createCipheriv(
+      "aes-256-cbc",
+      Buffer.from(process.env.ENCRYPTION_KEY, "hex"),
+      Buffer.from(process.env.ENCRYPTION_IV, "hex")
+    );
+    let encrypted = cipher.update(text, "utf8", "hex");
+    encrypted += cipher.final("hex");
+    return encrypted;
+  }
+  return "";
 }
 
 function decrypt(encryptedText) {
-  const decipher = crypto.createDecipheriv(
-    "aes-256-cbc",
-    Buffer.from(process.env.ENCRYPTION_KEY, "hex"),
-    Buffer.from(process.env.ENCRYPTION_IV, "hex")
-  );
-  let decrypted = decipher.update(encryptedText, "hex", "utf8");
-  decrypted += decipher.final("utf8");
-  return decrypted;
+  if (encryptedText) {
+    const decipher = crypto.createDecipheriv(
+      "aes-256-cbc",
+      Buffer.from(process.env.ENCRYPTION_KEY, "hex"),
+      Buffer.from(process.env.ENCRYPTION_IV, "hex")
+    );
+    let decrypted = decipher.update(encryptedText, "hex", "utf8");
+    decrypted += decipher.final("utf8");
+    return decrypted;
+  }
+
+  return "";
 }
 
 function getSha256Hash(data) {
-  return crypto.createHash("sha256").update(data).digest("hex");
+  if (data) {
+    return crypto.createHash("sha256").update(data).digest("hex");
+  }
+
+  return "";
 }
 
 app.use(express.static(path.join(__dirname, "frontend/dist")));
