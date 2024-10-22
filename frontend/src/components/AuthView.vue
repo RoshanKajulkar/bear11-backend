@@ -1,5 +1,7 @@
 <template>
   <v-card>
+    <h3 class="text-center ma-4">Pragati Share Market</h3>
+
     <v-tabs v-model="tab" align-tabs="center" color="deep-purple-accent-4">
       <v-tab :value="VIEW.REGISTER">Register</v-tab>
       <v-tab :value="VIEW.LOGIN">Login</v-tab>
@@ -16,10 +18,8 @@
 </template>
 
 <script setup>
-import { useGlobalStore } from "@/stores/globalStore";
-const globalStore = useGlobalStore();
 import { VIEW } from "../js/constant";
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import RegistrationView from "./RegistrationView.vue";
 import LoginView from "./LoginView.vue";
 

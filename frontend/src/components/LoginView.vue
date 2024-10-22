@@ -43,7 +43,7 @@
 <script setup>
 import { useGlobalStore } from "@/stores/globalStore";
 const globalStore = useGlobalStore();
-
+import { prepareEndpoint } from "../js/util";
 import { ref } from "vue";
 
 const username = ref("");
@@ -53,14 +53,10 @@ const isLoading = ref(false);
 import { VIEW } from "../js/constant";
 import axios from "axios";
 
-const redirect = (view) => {
-  globalStore.setView(view);
-};
-
 const loginUser = async () => {
   try {
     isLoading.value = true;
-    const response = await axios.post("/login", {
+    const response = await axios.post(prepareEndpoint("/login"), {
       username: username.value,
       password: password.value,
     });

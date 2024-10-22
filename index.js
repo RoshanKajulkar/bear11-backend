@@ -8,7 +8,6 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-
 const port = process.env.PORT || 3000;
 
 app.use(cors());
@@ -36,6 +35,21 @@ function encrypt(text) {
   let encrypted = cipher.update(text, "utf8", "hex");
   encrypted += cipher.final("hex");
   return encrypted;
+}
+
+function decrypt(encryptedText) {
+  const decipher = crypto.createDecipheriv(
+    "aes-256-cbc",
+    Buffer.from(process.env.ENCRYPTION_KEY, "hex"),
+    Buffer.from(process.env.ENCRYPTION_IV, "hex")
+  );
+  let decrypted = decipher.update(encryptedText, "hex", "utf8");
+  decrypted += decipher.final("utf8");
+  return decrypted;
+}
+
+function getSha256Hash(data) {
+  return crypto.createHash("sha256").update(data).digest("hex");
 }
 
 app.use(express.static(path.join(__dirname, "frontend/dist")));
@@ -150,6 +164,110 @@ app.get("/filtered-stocks", authenticateJWT, async (req, res) => {
     const data = result.rows;
 
     return res.json(data);
+  } catch (err) {
+    console.log(err);
+    return res.status(401).json({ error: "Internal server error" });
+  }
+});
+
+const getTokenExpiry = (token) => {
+  try {
+    const decoded = jwt.decode(token);
+
+    if (decoded && decoded.exp) {
+      const expiryDate = new Date(decoded.exp * 1000);
+      const currentDate = new Date();
+
+      if (currentDate > expiryDate) {
+        // logger.error("Token expired!");
+      }
+
+      return expiryDate;
+    }
+
+    return "Token does not have an expiry date or is invalid.";
+  } catch (error) {
+    return "Token does not have an expiry date or is invalid.";
+  }
+};
+
+app.get("/user", authenticateJWT, async (req, res) => {
+  try {
+    // console.log(req.user);
+    const result = await pool.query(
+      `SELECT * FROM dashboard_user WHERE username = '${req.user.username}';`
+    );
+    console.log(result.rows[0]);
+
+    const appId = decrypt(result.rows[0].app_id);
+    const accessToken = decrypt(result.rows[0].access_token);
+    const refreshToken = decrypt(result.rows[0].refresh_token);
+    console.log(getTokenExpiry(accessToken));
+    // const data = result.rows;
+    const secretId = decrypt(result.rows[0].secret_id);
+
+    const appIdHash = getSha256Hash(`${appId}:${secretId}`);
+
+    return res.json({
+      username: result.rows[0].username,
+      appId,
+      accessTokenExp: getTokenExpiry(accessToken),
+      refreshTokenExp: getTokenExpiry(refreshToken),
+      refreshToken: refreshToken,
+      appIdHash,
+      isAdmin: result.rows[0].isadmin,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(401).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/getToken", authenticateJWT, async (req, res) => {
+  try {
+    console.log(req.body.auth_code);
+
+    const result = await pool.query(
+      `SELECT * FROM dashboard_user WHERE username = '${req.user.username}';`
+    );
+
+    console.log(result.rows[0]);
+    const appId = decrypt(result.rows[0].app_id);
+    const secretId = decrypt(result.rows[0].secret_id);
+
+    const appIdHash = getSha256Hash(`${appId}:${secretId}`);
+    // const result = await pool.query(
+    //   `SELECT * FROM dashboard_user WHERE username = '${req.user.username}';`
+    // );
+    // console.log(result.rows[0]);
+
+    // const appId = decrypt(result.rows[0].app_id);
+    // // const data = result.rows;
+
+    const tokenRes = await axios.post(
+      "https://api-t1.fyers.in/api/v3/validate-authcode",
+      {
+        grant_type: "authorization_code",
+        appIdHash: appIdHash,
+        code: req.body.auth_code,
+      }
+    );
+
+    console.log(tokenRes.data.access_token, tokenRes.data.refresh_token);
+
+    const insertResult = await pool.query(
+      `UPDATE dashboard_user
+       SET access_token = $1,
+           refresh_token = $2
+       WHERE username = $3`,
+      [
+        encrypt(tokenRes.data.access_token),
+        encrypt(tokenRes.data.refresh_token),
+        req.user.username,
+      ]
+    );
+
+    return res.json({ msg: "inwork" });
   } catch (err) {
     console.log(err);
     return res.status(401).json({ error: "Internal server error" });
